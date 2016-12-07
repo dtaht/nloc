@@ -1,0 +1,8 @@
+#!/bin/sh
+#simple parallel pipeline with nloc to count lines of code
+
+P=`getconf _NPROCESSORS_ONLN`
+N=512
+
+find * -type f -name \*.c -o -name \*.h | xargs -P $P -n $N nloc | grep Total | awk -F : '{sum+=$2} END {print sum}'
+
