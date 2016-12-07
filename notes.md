@@ -196,3 +196,34 @@ threads that each had their own copy.
 
 As someone that has had great difficulty getting paid, of late,
 this is kind of important to me.
+
+## TODO
+
+1) shrink the size of the state and action tables ASCII starting at 10,
+ending at / (47)
+http://www.asciitable.com/
+
+After:
+real	0m0.850s
+user	0m2.644s
+sys	0m0.316s
+dave@nemesis:~/git/linux/net-next$ time nloc-test
+19689569
+
+before:
+real	0m0.661s
+user	0m1.980s
+sys	0m0.332s
+
+branch predictor? compiler ors the top bit? what?
+
+I hurredly backed it out.
+
+Or
+
+2) Go with an if statement rather than a state machine
+
+Generally smaller instruction pipelines are better, a cascade
+of if/then/else statements tends to overwhelm the OOO and branch
+predictors.
+
