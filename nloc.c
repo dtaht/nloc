@@ -115,7 +115,7 @@ void countComments( int fp , size_t *totalLines, size_t *single, size_t *multi )
   while ( pos <  size )
   {
     c = f[pos++];
-    if(c > 127) continue; // FIXME: munch utf-8
+    if(c > 127) { c = 127; } // FIXME: munch utf-8
 
     curAction = action[curState][c]; // Read the action before we overwrite the state
     curState = state[curState][c];   // Get the new state (which may be the same as the old state)
