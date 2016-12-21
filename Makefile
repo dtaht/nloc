@@ -1,8 +1,8 @@
 # Makefile for nloc
 
-CFLAGS:=-O3 -static
+CFLAGS:=-O3 #-static
 nloc: nloc.c
-	$(CC) $(CFLAGS) -o nloc nloc.c
+	$(CC) $(CFLAGS) -o nloc nloc.c -lm
 
 clean:
 	rm -f *.html *.1 nloc

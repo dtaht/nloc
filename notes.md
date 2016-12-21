@@ -2,7 +2,7 @@ Is the meta question - why is loccount a bad model, and what can be done
 about it? Recursively, I set about improving loccount, and trying to
 observe what I did while doing so.
 
-I've never written a line of go in my life, but I've programmed in 
+I've never written a line of go in my life, but I've programmed in
 (easily) 30 other programming languages, and go was such a small step
 from C as to be able to easily start figuring it out. So I looked over
 esr's code.
@@ -10,7 +10,7 @@ esr's code.
 In under two hours, and not grokking go, I'd spotted an easy optimization.
 
 My SSD can transfer 500MByte/sec and the linux kernel is 24MB in size,
-so there was no I/O reason why the code should take much more than 
+so there was no I/O reason why the code should take much more than
 50msec to run. In the age of SSDs, you don't have to worry much
 about seek time either, and if cached, memory can transfer in 3Gbytes/sec.
 
@@ -21,9 +21,9 @@ The code, as of commit
 two hours, two lines of code, halved the runtime on my dual core box,
 and scaled as a number of cores on what he calls "the beast". Where my
 processing time was 34 seconds for the linux kernel and 64 originally,
-his was 10. 
+his was cut to 10.
 
-The original sloccount code took 93 seconds on my machine, so this was a factor 
+The original sloccount code took 93 seconds on my machine, so this was a factor
 of 3 speedup on cheap hardware - total win, time to quit, right?
 
 Wellll...... Lets profile the go code, shall we?
@@ -64,7 +64,7 @@ find * -type f -name \*.c -o -name \*.h | xargs -P 8 -x 2048 nloc
 
 The magic bit - that scales to the number of cores, is the -P 8.
 
-The -P option to xargs means the maximum number of processes to 
+The -P option to xargs means the maximum number of processes to
 run in parallel. It's not frequently used, because this makes the results in the
 next stage in the pipeline indeterminate, and may lead to garbage unless you're careful,
 But this  problem is embarrasingly parallel, so we're good there.
@@ -94,7 +94,7 @@ since it's easy, to the same bit of c code and see if we can win.
 
 ## Oops
 Program received signal SIGSEGV, Segmentation fault.
-0x0000000000400a0c in countComments (fp=3, totalLines=0x7fffffff0d30, 
+0x0000000000400a0c in countComments (fp=3, totalLines=0x7fffffff0d30,
     single=0x7fffffff0d38, multi=0x7fffffff0d40) at nloc2.c:113
 113	    curAction = action[curState][c]; // Read the action before we overwrite the state
 (gdb) up
@@ -192,7 +192,7 @@ the precompiled regex is covered by a lock, so although we've efficiently
 managed the regex compilation, it might be better to have a pool of
 threads that each had their own copy.
 
-500Mbytes/sec and the linux kernel is only a mere 24MB in size. 
+500Mbytes/sec and the linux kernel is only a mere 24MB in size.
 
 As someone that has had great difficulty getting paid, of late,
 this is kind of important to me.
@@ -227,3 +227,43 @@ Generally smaller instruction pipelines are better, a cascade
 of if/then/else statements tends to overwhelm the OOO and branch
 predictors.
 
+## Easy language-isms
+
+Go has sort and sortable and map types. C has none of these. A single
+call to a sort is likely to be fraught with error.
+
+## Tedium and structured programming
+
+My divisor is inspiration vs tedium. Early in the morning I tackle the
+tough problems, when otherwise
+
+There was a lot of tedium in this port. Take argument parsing for
+example. Every language does this differently. C, in particular,
+evolved multiple different means of doing it, starting with the
+venerable getopt, and then getopt_long. Then there was popt.h.
+Libraries on top of C like glib added in default options, and
+other additional processing... but, still doing it remains tedious.
+
+Another thing I find horrifically tedious is the pace at adding
+needed callbacks to a gui widget.
+
+"structured programming"
+
+## Todo items
+
+Filewalking
+Arg parsing
+Structure assignment
+Initialization
+Counting by language
+Regex compilation
+UTF-8 handing
+
+## The "Oh, god" stuff
+
+sort, slices, strings, ranges, hashes, maps, and csp
+
+## Arg parsing
+
+
+getopt_long does not. it's ints or else.
