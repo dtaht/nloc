@@ -249,6 +249,10 @@ needed callbacks to a gui widget.
 
 "structured programming"
 
+## Re-entrancy
+
+basename
+
 ## Todo items
 
 Filewalking
@@ -267,3 +271,8 @@ sort, slices, strings, ranges, hashes, maps, and csp
 
 
 getopt_long does not. it's ints or else.
+
+## Counting is a static structure
+
+so the end result instead of being collated by assembling the
+is just a pointer into the offset for the language type

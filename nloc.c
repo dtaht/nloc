@@ -2,16 +2,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdatomic.h>
 #include <ctype.h>
 #include <math.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
 #include <regex.h>
 #include <ftw.h>
 #include <getopt.h>
+
+/* http://nullprogram.com/blog/2014/09/02/ atomics */
+
+/* https://github.com/skeeto/lqueue */
 
 const float version = .01;
 
@@ -43,8 +49,6 @@ struct scriptingLanguage  {
   char *hashbang;
   verify verifier;
 };
-
-// var scriptingLanguages []scriptingLanguage
 
 struct pascalLike  {
   char *name;
@@ -115,7 +119,40 @@ const char generated[] = "automatically generated|generated automatically|genera
 
 #define nil NULL
 
-// Some forward declarations
+bool isDirectory(char *path) {
+        struct stat stats;
+	int err = stat(path,&stats);
+	return err == 0 && S_ISDIR(stats.st_mode);
+}
+
+bool isRegular(char *path) {
+        struct stat stats;
+	int err = stat(path,&stats);
+	return err == 0 && S_ISREG(stats.st_mode);
+}
+
+const char *suffix(char *s) {
+	int i;
+        for(i = strlen(s); i > 0; i--) {
+		if(s[i] == '.') break;
+	}
+	return &s[i]; // FIXME - NULL?
+}
+
+/*
+
+bool inSuffix(char *s) {
+	if(s == NULL) return false;
+	int n = strlen(s);
+	for (i = 0; i < sizeof(bka); i++) {
+	if(strncmp(n,s,neverInterestingBySuffix[i]) == 0) return true; // FIXME strlen of the suffix must equal also
+           }
+        return false;
+}
+
+*/
+
+// Some stubs for now
 bool really_is_lex() { return false; };
 bool really_is_objc() { return false; };
 bool really_is_pop11() { return false; };
