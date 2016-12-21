@@ -263,6 +263,14 @@ Counting by language
 Regex compilation
 UTF-8 handing
 
+
+## basename, dirname
+
+basename and dirname MAY or may not modify the string in place based on
+obscure rules -
+
+The gnu version doesn't the posix one does
+
 ## The "Oh, god" stuff
 
 sort, slices, strings, ranges, hashes, maps, and csp
