@@ -414,7 +414,7 @@ void countComments( int fp , size_t *totalLines, size_t *single, size_t *multi )
   off_t size = stats.st_size;
   if(size < 1) return;
   unsigned char * f = mmap(NULL, size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fp, 0);
-  if(f == NULL) return;
+  if(f == MAP_FAILED) return;
 
   while ( pos <  size )
   {
