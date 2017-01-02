@@ -14,6 +14,7 @@
 #include <regex.h>
 #include <ftw.h>
 #include <getopt.h>
+//#include <glib.h>
 
 /* http://nullprogram.com/blog/2014/09/02/ atomics */
 
@@ -62,13 +63,13 @@ struct pascalLike  {
 #define dt "\"\"\""
 #define st "'''"
 
-regex_t  *dtriple, *striple, *dtrailer, *strailer, *dlonely, *slonely, *podheader;
+regex_t  dtriple, striple, dtrailer, strailer, dlonely, slonely, podheader;
 
 struct fortranLike {
   char *name;
   char *suffix;
-  regex_t *comment;
-  regex_t *nocomment;
+  regex_t comment;
+  regex_t nocomment;
 };
 
 // var fortranLikes []fortranLike
@@ -261,14 +262,16 @@ struct pascalLike pascalLikes[] = {
 		{"oberon",  ".mod", false, nil},
 };
 
+#define regtcomp(e,v,a,p) err=regcomp(&v,a,p) ? : printf("comp err=%d\n", err)
 
 bool init_regex() {
-	regcomp(dtriple, dt "." dt, 0);
-	regcomp(striple, st "." st, 0);
-	regcomp(dlonely,"^[ \t]*\"[^\"]+\"",0);
-	regcomp(slonely,"^[ \t]*'[^']+'",0);
-	regcomp(strailer,".*" st,0);
-	regcomp(dtrailer,".*" dt,0);
+	int err;
+	regtcomp(err,dtriple, dt "." dt, 0);
+	regtcomp(err,striple, st "." st, 0);
+	regtcomp(err,dlonely,"^[ \t]*\"[^\"]+\"",0);
+	regtcomp(err,slonely,"^[ \t]*'[^']+'",0);
+	regtcomp(err,strailer,".*" st,0);
+	regtcomp(err,dtrailer,".*" dt,0);
 }
 
 /*
@@ -457,8 +460,12 @@ void reportCocomo(uint32_t sloc) {
 	printf(" (average salary = $%f/year, overhead = %2.2f).\n", SALARY, OVERHEAD);
 }
 
+void listLanguages() { }
+void listExtensions() { }
+
 /* https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html#Getopt-Long-Option-Example */
 /*
+
 func listLanguages() []string {
 	var names []string = []string{"python", "waf", "perl"}
 	var lastlang string
@@ -547,18 +554,17 @@ struct opts {
 	char *cpuprofile;
 };
 
-int flag_parse(char **argv, int argc) {
-	struct opts o;
+int flag_parse(int argc, char **argv, struct opts *o) {
 	int c;
 	struct option long_options[] =
         {
-          {"individual", no_argument,       &o.individual, 'i'},
-          {"unclassified",   no_argument,       &o.unclassified, 'u'},
-          {"cocomo",     no_argument,       &o.cocomo, 'c'},
-          {"list",  no_argument,       &o.list, 'l'},
-          {"showversion",  no_argument,       &o.showversion, 'V'},
-          {"cpuprofile",  required_argument, &o.cpuprofile, 'C'},
-          {"debug",  required_argument, &o.debug, 'd'},
+          {"individual", no_argument,       &o->individual, 'i'},
+          {"unclassified",   no_argument,       &o->unclassified, 'u'},
+          {"cocomo",     no_argument,       &o->cocomo, 'c'},
+          {"list",  no_argument,       &o->list, 'l'},
+          {"showversion",  no_argument,       &o->showversion, 'V'},
+          {"cpuprofile",  required_argument, &o->cpuprofile, 'C'},
+          {"debug",  required_argument, &o->debug, 'd'},
           {0, 0, 0, 0}
         };
 
@@ -578,27 +584,26 @@ int flag_parse(char **argv, int argc) {
 	      }
       }
 
-      if(o.showversion) {
+      if(o->showversion) {
 	      printf("nloc %.1f\n", version);
 	      exit(0);
       }
 
-      if(o.list) {
-	      printf("%s\n", listLanguages());
+      if(o->list) {
+	      listLanguages();
 	      exit(0);
       }
 
-      if(o.extensions) {
+      if(o->extensions) {
 	      listExtensions();
 	      exit(0);
       }
 
       // ...
 
-/*      if (o.cocomo) {
-		reportCocomo(totals.linecount)
+      if (o->cocomo) {
+	// 	reportCocomo(totals.linecount)
 	}
-*/
 }
 
 
@@ -607,6 +612,7 @@ int flag_parse(char **argv, int argc) {
  */
 int main( int argc, char **argv )
 {
+  struct opts o;
   size_t totalLines = 0, single = 0, multi = 0;
   /**
    * Input sanity check
@@ -616,6 +622,10 @@ int main( int argc, char **argv )
     fprintf( stderr, "USAGE: %s <filenames> \n", argv[0] );
     exit( EXIT_FAILURE );
   }
+  flag_parse(argc, argv, &o);
+  
+  init_regex();
+
   for(int i = 1; i < argc; i++) {
   /**
    * Open the input file
